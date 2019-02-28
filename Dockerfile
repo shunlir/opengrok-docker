@@ -4,6 +4,19 @@ MAINTAINER Shunli Ren"shunli.ren.00@gmail.com"
 
 RUN sed -i '/main$/ s/$/ universe/' /etc/apt/sources.list
 
+# install dependencies
+RUN set -ex; \
+    apt-get update && apt-get install -y --no-install-recommends git subversion mercurial unzip inotify-tools python3 python3-pip python3-setuptools; \
+    rm -rf /var/lib/apt/lists/*
+# compile and install universal-ctags
+RUN set -ex; \
+    apt-get update && apt-get install -y --no-install-recommends pkg-config autoconf automake build-essential; \
+    rm -rf /var/lib/apt/lists/*; \
+    git clone https://github.com/universal-ctags/ctags /root/ctags ; \
+    cd /root/ctags && ./autogen.sh && ./configure && make && make install ; \
+    apt-get remove -y autoconf automake build-essential && apt-get -y autoremove && apt-get -y autoclean ; \
+    cd /root && rm -rf /root/ctags
+
 # download opengrok and extract
 RUN set -ex; \
     apt-get update && apt-get install -y --no-install-recommends curl jq wget && rm -rf /var/lib/apt/lists/*; \
@@ -17,6 +30,7 @@ RUN set -ex; \
     fi; \
     mkdir -p /grok/dist; \
     tar -zxvf /tmp/opengrok.tar.gz -C /grok/dist --strip-components 1; rm -f /tmp/opengrok.tar.gz; \
+    python3 -m pip install /grok/dist/tools/opengrok-tools*; \
     mkdir /var/opengrok; \
     mkdir /grok/etc && ln -s /grok/etc /var/opengrok/etc; \
     mkdir /grok/data && ln -s /grok/data /var/opengrok/data; \
@@ -27,20 +41,6 @@ RUN set -ex; \
     sed -i -E 's@^(java.util.logging.FileHandler.pattern).*@\1 = /var/opengrok/log/opengrok%g.%u.log@g' /var/opengrok/etc/logging.properties; \
     sed -i -E 's@^(java.util.logging.FileHandler.pattern).*@\1 = /var/opengrok/log/%PROJ%/opengrok%g.%u.log@g' /var/opengrok/etc/logging.properties.template; \
     sed -i -E 's@^(java.util.logging.FileHandler.count).*@\1 = 3@g' /var/opengrok/etc/logging.properties.template
-
-# install dependencies
-RUN set -ex; \
-    apt-get update && apt-get install -y --no-install-recommends git subversion mercurial unzip inotify-tools python3 python3-pip python3-setuptools; \
-    rm -rf /var/lib/apt/lists/*; \
-    python3 -m pip install /grok/dist/tools/opengrok-tools*
-# compile and install universal-ctags
-RUN set -ex; \
-    apt-get update && apt-get install -y --no-install-recommends pkg-config autoconf automake build-essential; \
-    rm -rf /var/lib/apt/lists/*; \
-    git clone https://github.com/universal-ctags/ctags /root/ctags ; \
-    cd /root/ctags && ./autogen.sh && ./configure && make && make install ; \
-    apt-get remove -y autoconf automake build-essential && apt-get -y autoremove && apt-get -y autoclean ; \
-    cd /root && rm -rf /root/ctags
 
 # env
 ENV GROK_INST /var/opengrok
