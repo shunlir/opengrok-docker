@@ -1,0 +1,20 @@
+#!/bin/sh
+grok_add_info(){
+    curl -i -X POST -H  "Content-Type: application/json" \
+ --data-binary "$(printf '{"tags": ["main"], "cssClass": "info", "text":"%s", "duration":"PT1H"}' "$1")"  http://localhost:8080/source/api/v1/messages
+}
+grok_remove_info(){
+    curl -i -X DELETE http://localhost:8080/source/api/v1/messages?tag=main
+}
+
+indexer_exit_if_running(){
+    LOCKFILE=/var/run/lock/grok-indexer
+    TMPFILE=$LOCKFILE.$$
+    echo $$ > $TMPFILE
+    if ! ln $TMPFILE $LOCKFILE; then
+      echo "locked by process $(cat $LOCKFILE)"
+      rm $TMPFILE
+      exit 1;
+    fi
+    trap "rm -f ${TMPFILE} ${LOCKFILE}" 0 1 2 3 15
+}

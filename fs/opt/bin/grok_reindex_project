@@ -1,0 +1,19 @@
+#!/bin/sh
+
+PROJECT=$1
+if [ -z "$1" ]; then
+    echo "usage: grok_reindex_project <project>"
+    exit 1
+fi
+R_XML_CONF=/var/opengrok/etc/project_groups.xml
+if [ -f $R_XML_CONF ]; then
+  R_ARG="-R $R_XML_CONF"
+fi
+opengrok-reindex-project -l debug \
+    -a $GROK_JAR \
+    -t /var/opengrok/etc/logging.properties.template -p '%PROJ%' -d /var/opengrok/log/$PROJECT \
+    -P $PROJECT \
+    -- \
+    -H -G \
+    -s /var/opengrok/src -d /var/opengrok/data \
+    -U http://localhost:8080/source $R_ARG $PROJECT

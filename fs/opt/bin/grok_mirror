@@ -1,0 +1,9 @@
+#!/bin/sh
+
+if [ -z "$1" ]; then
+    echo "usage: grok_mirror <project>"
+    exit 1
+fi
+ 
+opengrok-mirror -c /var/opengrok/etc/mirror.yml $1
+

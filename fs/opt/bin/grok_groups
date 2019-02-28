@@ -1,0 +1,15 @@
+#!/bin/sh
+
+if [ "$1" = "-h" ]; then
+  echo "usage: $(basename $0) -l | {[-p parent_group] -n new_group -r \"pattern1|pattern2|...\"}"
+  exit 0
+fi
+XML=/var/opengrok/etc/project_groups.xml
+if [ ! -f $XML ]; then
+  opengrok-groups -a $GROK_JAR -- -e >$XML
+fi
+opengrok-groups -a $GROK_JAR -- \
+  -i $XML -o new_project_groups.xml $@
+if [ $? -eq 0 ] && [ -f new_project_groups.xml ]; then
+  mv new_project_groups.xml $XML
+fi

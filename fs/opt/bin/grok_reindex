@@ -1,0 +1,11 @@
+#!/bin/sh
+
+if [ ! -z "$1" ]; then
+  ARGS="--projects $1"
+fi
+
+[ -f "$(dirname $0)/init" ] && . "$(dirname $0)/init"
+indexer_exit_if_running
+
+opengrok-sync -l debug -c /var/opengrok/etc/sync.yml $ARGS
+

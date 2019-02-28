@@ -1,0 +1,21 @@
+#!/bin/sh
+
+if [ "$1" = "-h" ]; then
+  echo "Usage: $(basename $0) [--noIndex]"
+  exit 0
+fi
+
+[ -f "$(dirname $0)/init" ] && . "$(dirname $0)/init"
+indexer_exit_if_running
+ 
+R_XML_CONF=/var/opengrok/etc/project_groups.xml
+if [ -f $R_XML_CONF ]; then
+  R_ARG="-R $R_XML_CONF"
+fi
+opengrok-indexer -l debug -J=-Djava.util.logging.config.file=/var/opengrok/etc/logging.properties \
+    -a $GROK_JAR \
+    -- \
+    -s /var/opengrok/src -d /var/opengrok/data \
+    -H -P -S -G \
+    -W /var/opengrok/etc/configuration.xml -U http://localhost:8080/source $R_ARG $*
+
