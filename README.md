@@ -4,7 +4,9 @@
 
 ## Features
 
-- 
+- auto-indexing (inotify-based and scheduled)
+- index multiple projects in parallel
+- show information in opengrok web interface while building index.
 
 ## Usage
 
