@@ -6,8 +6,8 @@ commands:
     duration: PT1H
     tags: ['%PROJECT%']
     text: reindex in progress
-#- command: [/opt/bin/grok_mirror, '%PROJECT%']
-- command: [/opt/bin/grok_reindex_project, '%PROJECT%']
+#- command: [/grok/bin/grok_mirror, '%PROJECT%']
+- command: [/grok/bin/grok_reindex_project, '%PROJECT%']
   env: {LC_ALL: en_US.UTF-8}
   limits: {RLIMIT_NOFILE: 1024}
 - command: ['http://localhost:8080/source/api/v1/messages?tag=%PROJECT%', DELETE, '']

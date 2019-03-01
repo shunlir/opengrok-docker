@@ -21,7 +21,7 @@ start_opengrok(){
 
 	# Populate the webapp with bare configuration.
     grok_add_info "initial reindex in progress... Stay tuned please !"
-	/grok/bin/grok_index.sh --noIndex
+	/grok/bin/grok_index --noIndex
 
 	# Perform initial indexing.
 	/grok/bin/grok_reindex
