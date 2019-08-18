@@ -4,7 +4,6 @@ hook_timeout: 1200
 # Per project configuration.
 #
 projects:
-  icanetworkcomponents:
   opengrok:
     ignored_repos:
       - testdata/repositories/*

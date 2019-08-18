@@ -4,33 +4,44 @@
 
 ## Features
 
-- auto-indexing (inotify-based and scheduled)
-- index multiple projects in parallel
+- auto-indexing (inotify-based and scheduled).
+- index multiple projects in parallel.
 - show information in opengrok web interface while building index.
+- project group wrapper.
 
 ## Usage
 
 ### To Start
 
 ```sh
-$ docker run --rm -d --name=grok -v /src:/grok/src -p 8080:8080 shunlir/opengrok
+$ docker run --rm -d \
+    --name=grok \
+    -v /src:/grok/src \
+    -v /data:/grok/data \
+    -p 8080:8080 \
+    shunlir/opengrok
 ```
 
-By default, the index will be rebuild dynamically upon updating through `inotifywait` on the source folder, or every 120 minutes at most. 
+By default, the index will be rebuild automatucally 1) changes detected through `inotifywait` in the source folder, or 2) every 120 minutes.
+
+Note:  if you have more than 8192 files to watch, you will need to increase the amount of inotify watches allowed per user (`/proc/sys/fs/inotify/max_user_watches`) on your host system.
 
 You can use `-e REINDEX=0` to disable auto indexing:
 
 ```sh
-$ docker run --rm -d -e REINDEX=0 --name=grok -v /src:/grok/src -p 8080:8080 shunlir/opengrok
+$ docker run --rm -d \
+    --name=grok \
+    -e REINDEX=0 \
+    -v /src:/grok/src \
+    -p 8080:8080 \
+    shunlir/opengrok
 ```
 
-then you can use docker exec to trigger re-index at your own:
+then you can use docker exec to re-index maunally:
 
 ```sh
 $ docker exec grok grok_index
 ```
-
-Note:  if you have more than 8192 files to watch, you will need to increase the amount of inotify watches allowed per user (`/proc/sys/fs/inotify/max_user_watches`) on your host system.
 
 ### The Web interface
 
@@ -41,15 +52,25 @@ The web interface is available at `http://localhost:8080/source`, `/` will redir
 - You can disable `inotify` using `INOTIFY=0` environment:
 
 ```sh
-$ docker run --rm -d -e INOTIFY=0 --name=grok -v /src:/grok/src -p 8080:8080 shunlir/opengrok
+$ docker run --rm -d \
+    --name=grok \
+    -e INOTIFY=0 \
+    -v /src:/grok/src \
+    -p 8080:8080 \
+    shunlir/opengrok
 ```
 
-Note: auto-indexing will be done every 120 minutes.
+Note: auto-indexing will still be started very 120 minutes.
 
 - You can adjust this time (in Minutes) by passing the `REINDEX `environment variable:
 
 ```sh
-$ docker run --rm -d -e REINDEX=30 --name=grok -v /src:/grok/src -p 8080:8080 shunlir/opengrok
+$ docker run --rm -d \
+    --name=grok \
+    -e REINDEX=30 \
+    -v /src:/grok/src \
+    -p 8080:8080 \
+    shunlir/opengrok
 ```
 
 - Run container with volume for `/grok/etc`
