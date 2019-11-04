@@ -1,0 +1,20 @@
+version: "3"
+
+services:
+  opengrok:
+    container_name: grok
+    image: shunlir/opengrok:latest
+    ports:
+      - "8080:8080/tcp"
+    environment:
+      REINDEX: '120'
+      INOTIFY: '1'
+    # Volumes store your data between container upgrades
+    volumes:
+       - '/grok/src/:/grok/src/'   # source code
+       - '/grok/data/:/grok/data/' # index and other things for source code
+       - '/grok/log/:/grok/log/'   # index and other things for source code
+       - 'etc:/grok/etc/'     # folder contains configuration files
+volumes:
+  etc:
+    driver: local
