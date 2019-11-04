@@ -1,10 +1,10 @@
 #!/bin/sh
 grok_add_info(){
     curl -i -X POST -H  "Content-Type: application/json" \
- --data-binary "$(printf '{"tags": ["main"], "cssClass": "info", "text":"%s", "duration":"PT1H"}' "$1")"  http://localhost:8080/source/api/v1/messages
+ --data-binary "$(printf '{"tags": ["%s"], "cssClass": "info", "text":"%s", "duration":"PT1H"}' "$1" "$2")"  http://localhost:8080/source/api/v1/messages
 }
 grok_remove_info(){
-    curl -i -X DELETE http://localhost:8080/source/api/v1/messages?tag=main
+    curl -i -X DELETE http://localhost:8080/source/api/v1/messages?tag=$1
 }
 
 indexer_exit_if_running(){
@@ -18,3 +18,10 @@ indexer_exit_if_running(){
     fi
     trap "rm -f ${TMPFILE} ${LOCKFILE}" 0 1 2 3 15
 }
+
+R_XML_CONF=/var/opengrok/etc/project_groups.xml
+if [ -f $R_XML_CONF ]; then
+  R_ARG="-R $R_XML_CONF"
+else
+  R_ARG=
+fi

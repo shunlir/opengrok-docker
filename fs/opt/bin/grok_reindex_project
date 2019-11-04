@@ -2,13 +2,13 @@
 
 PROJECT=$1
 if [ -z "$1" ]; then
-    echo "usage: grok_reindex_project <project>"
+    echo "$(basename $0), reindex a project."
+    echo "  usage: grok_reindex_project <project>"
     exit 1
 fi
-R_XML_CONF=/var/opengrok/etc/project_groups.xml
-if [ -f $R_XML_CONF ]; then
-  R_ARG="-R $R_XML_CONF"
-fi
+
+[ -f "$(dirname $0)/init" ] && . "$(dirname $0)/init"
+
 opengrok-reindex-project -l debug \
     -a $GROK_JAR \
     -t /var/opengrok/etc/logging.properties.template -p '%PROJ%' -d /var/opengrok/log/$PROJECT \
@@ -16,4 +16,8 @@ opengrok-reindex-project -l debug \
     -- \
     -H -G \
     -s /var/opengrok/src -d /var/opengrok/data \
+    -W /var/opengrok/etc/configuration.xml \
     -U http://localhost:8080/source $R_ARG $PROJECT
+
+#curl -H 'Content-Type: application/xml' -X PUT --data-binary '@/var/opengrok/etc/configuration.xml' "http://localhost:8080/source/api/v1/configuration?reindex=true"
+

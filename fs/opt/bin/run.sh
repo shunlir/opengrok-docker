@@ -20,13 +20,13 @@ start_opengrok(){
 	date +"%F %T Startup finished"
 
 	# Populate the webapp with bare configuration.
-    grok_add_info "initial reindex in progress... Stay tuned please !"
-	/grok/bin/grok_index --noIndex
+    grok_add_info main "initial reindex in progress... Stay tuned please !"
+	/grok/bin/grok_index --init --noIndex
 
 	# Perform initial indexing.
 	/grok/bin/grok_reindex
 	date +"%F %T Initial reindex finished"
-    grok_remove_info
+    grok_remove_info main
 
 	# Continue to index every $REINDEX minutes.
 	if [ "$REINDEX" = "0" ]; then

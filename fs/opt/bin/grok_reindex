@@ -1,4 +1,8 @@
-#!/bin/sh
+#!/bin/bash
+
+#
+# Concurrently reindex a list of projects (specified via --projects) or all projects (when no arg).
+#
 
 if [ ! -z "$1" ]; then
   ARGS="--projects $1"
@@ -7,5 +11,6 @@ fi
 [ -f "$(dirname $0)/init" ] && . "$(dirname $0)/init"
 indexer_exit_if_running
 
-opengrok-sync -l debug -c /var/opengrok/etc/sync.yml $ARGS
-
+opengrok-sync -l debug -c "$(dirname $0)/grok_reindex.yml" $ARGS
+curl 'http://localhost:8080/source/api/v1/configuration' > /var/opengrok/etc/configuration.xml
+time curl -H 'Content-Type: application/xml' -X PUT --data-binary '@/var/opengrok/etc/configuration.xml' "http://localhost:8080/source/api/v1/configuration?reindex=true"

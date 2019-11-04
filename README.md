@@ -16,32 +16,20 @@
 ```sh
 $ docker run --rm -d \
     --name=grok \
-    -v /src:/grok/src \
-    -v /data:/grok/data \
+    -v /grok/src:/grok/src \
+    -v /grok/data:/grok/data \
+    -v /grok/log:/grok/log \
     -p 8080:8080 \
     shunlir/opengrok
 ```
 
-By default, the index will be rebuild automatucally 1) changes detected through `inotifywait` in the source folder, or 2) every 120 minutes.
+> By default, the index will be rebuild automatucally 1) changes detected through `inotifywait` in the source folder, or 2) every 120 minutes.  
 
-Note:  if you have more than 8192 files to watch, you will need to increase the amount of inotify watches allowed per user (`/proc/sys/fs/inotify/max_user_watches`) on your host system.
+> Note:  if you have more than 8192 files to watch, you will need to increase the amount of inotify watches allowed per user (`/proc/sys/fs/inotify/max_user_watches`) on your host system.
 
-You can use `-e REINDEX=0` to disable auto indexing:
-
-```sh
-$ docker run --rm -d \
-    --name=grok \
-    -e REINDEX=0 \
-    -v /src:/grok/src \
-    -p 8080:8080 \
-    shunlir/opengrok
-```
-
-then you can use docker exec to re-index maunally:
-
-```sh
-$ docker exec grok grok_index
-```
+- You can use `-e REINDEX=0` to disable auto indexing.
+- You can use `-e INOTIFY=0` to disable source folder change monitoring.
+- You can use `grok_index` to do increamental index maunally at any time: `$ docker exec grok grok_index`
 
 ### The Web interface
 
@@ -49,26 +37,13 @@ The web interface is available at `http://localhost:8080/source`, `/` will redir
 
 ## Advance Usage
 
-- You can disable `inotify` using `INOTIFY=0` environment:
-
-```sh
-$ docker run --rm -d \
-    --name=grok \
-    -e INOTIFY=0 \
-    -v /src:/grok/src \
-    -p 8080:8080 \
-    shunlir/opengrok
-```
-
-Note: auto-indexing will still be started very 120 minutes.
-
-- You can adjust this time (in Minutes) by passing the `REINDEX `environment variable:
+- You can adjust auto reindex time interval (in Minutes) by passing the `REINDEX `environment variable:
 
 ```sh
 $ docker run --rm -d \
     --name=grok \
     -e REINDEX=30 \
-    -v /src:/grok/src \
+    -v /grok/src:/grok/src \
     -p 8080:8080 \
     shunlir/opengrok
 ```
@@ -76,8 +51,12 @@ $ docker run --rm -d \
 - Run container with volume for `/grok/etc`
 
 ```sh
-$ docker volume create grok_etc
-$ docker run --rm -d --name=grok -v /src:/grok/src -v grok_etc:/grok/etc -p 8080:8080 shunlir/opengrok
+$ docker run --rm -d \
+             --name=grok \
+             -v /src:/grok/src \
+             -v grok_etc:/grok/etc \
+             -p 8080:8080 \
+             shunlir/opengrok
 $ docker volume inspect grok_etc # find the Mountpoint
 ```
 
@@ -90,11 +69,11 @@ $ docker exec grok grok_index # rebuild index of all projects one by one
 Or use the following combination:
 
 ```sh
-$ docker exec grok grok_index --noIndex # generate bare configuration for web interface
-$ docker exec grok grok_reindex # rebuild index of all projects in parallel
+$ docker exec grok grok_index --noIndex # generate bare configuration for web interface, project list will be empty in web interface, issue?
+$ docker exec grok grok_reindex         # rebuild index of all projects in parallel
 ```
 
-Note: `grok_reindex` doesn't scan `/src` to find added/removed projects/repositories, that's why `grok_index --noIndex` is invoked first.
+> Note: `grok_reindex` doesn't scan `/src` to find added/removed projects/repositories in the fly, that's why `grok_index --noIndex` is invoked first.
 
 - To trigger re-indexing after contents of projects in`/src` are changed:
 

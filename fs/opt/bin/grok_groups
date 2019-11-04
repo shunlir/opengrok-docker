@@ -1,5 +1,9 @@
 #!/bin/sh
 
+#
+# opengrouk-groups wrapper for group management
+#
+
 if [ "$1" = "-h" ]; then
   echo "usage: $(basename $0) -l | {[-p parent_group] -n new_group -r \"pattern1|pattern2|...\"}"
   exit 0

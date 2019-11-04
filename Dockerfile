@@ -69,7 +69,6 @@ RUN set -eux; \
 # add files
 COPY fs/opt/bin /grok/bin
 RUN chmod -R +x /grok/bin
-COPY fs/var/opengrok/etc/* /var/opengrok/etc/
 
 # tomcat logging tuning: keep 10 days
 RUN set -eux; \
