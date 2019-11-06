@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #
 # TODO: --noIndex makes the webinterface project list empty
@@ -16,11 +16,11 @@ fi
 [ -f "$(dirname $0)/init" ] && . "$(dirname $0)/init"
 indexer_exit_if_running
  
-[ "$show_info" == "false" ] ||  grok_add_info main "indexing in progress..."
+[ "$show_info" = "false" ] ||  grok_add_info main "indexing in progress..."
 opengrok-indexer -l debug -J=-Djava.util.logging.config.file=/var/opengrok/etc/logging.properties -J=-d64 -J=-server \
     -a $GROK_JAR \
     -- \
     -s /var/opengrok/src -d /var/opengrok/data \
     -H -P -S -G \
     -W /var/opengrok/etc/configuration.xml -U http://localhost:8080/source $R_ARG $*
-[ "$show_info" == "false" ] || grok_remove_info main
+[ "$show_info" = "false" ] || grok_remove_info main
